@@ -16,10 +16,19 @@ int mkdir(const char *pathname, mode_t mode);
 int chdir(const char *path);
 void executeCommand(char *cmd);
 
-char *commands[5] = {"cd", "help", "exit", "pwd", "type"};				/* list of internal commands accepted by the smsh */
-int numCommands = 5;									/* number of internal commands */
+char *commands[6] = {"cd", "help", "exit", "pwd", "type", "history"};			/* list of internal commands accepted by the smsh */
+int numCommands = 6;									/* number of internal commands */
 char *args[3];										/* list of all arguments and options extracted from command line */
 int status = 0;
+
+struct Node										/* linked list to store command history */
+{
+	char* comd;									/* command in linked list */
+	struct Node* next;
+};
+
+struct Node* head = NULL;								/* initialize head and current nodes */
+struct Node* current = NULL;
 
 int main(int argc, char **argv)
 {
@@ -84,6 +93,21 @@ char *parseCommand(char *cmdLine)
 	{
 		args[i] = strtok(NULL, " ");
 	}				
+	if(head == NULL)
+	{
+		head = (struct Node*)malloc(sizeof(struct Node));			/* memory allocation for head and current */
+		current = (struct Node*)malloc(sizeof(struct Node));
+		head->comd = malloc(strlen(cmd+1));					/* assign cmd to head */
+		strcpy(head->comd, cmd);
+		head->next = current;							/* make the next node the current node */
+	}
+	else
+	{
+		current->next = (struct Node*)malloc(sizeof(struct Node));		/* assign cmd to current */
+		current->next->comd = malloc(strlen(cmd+1));
+		strcpy(current->next->comd, cmd);
+		current = current->next;						/* make the next node the current node */
+	}
 	return cmd;
 }
 int isInternalCommand(char *cmd)
@@ -112,6 +136,7 @@ void executeInternalCommand(char *cmd)
 		printf("exit	closes active session and logs user out		options		NA\n");
 		printf("pwd	prints current working directory		options		NA\n");
 		printf("type	display information about command		options		command\n");
+		printf("history	display previously entered commands		options		NA\n");
 	}
 	else if((strcmp(commands[2], cmd)) ==0)						/* exit */
 	{
@@ -121,6 +146,17 @@ void executeInternalCommand(char *cmd)
 	{
 		char buf[100];
 		printf("%s\n", getcwd(buf, 100));
+	}
+	else if((strcmp(commands[5], cmd)) ==0)						/* history */
+	{
+		printf("history implementation\n");
+		struct Node* temp;
+		temp = head;
+		while(temp != NULL)							/* iterate over linked list and print */
+		{
+			printf("%s\n", temp->comd);
+			temp = temp->next;
+		}
 	}
 	else										/* type */
 	{
@@ -141,6 +177,10 @@ void executeInternalCommand(char *cmd)
 			printf("%s is shell builtin\n", args[1]);
 		}
 		else if((strcmp(commands[4], args[1])) ==0)
+		{
+			printf("%s is shell builtin\n", args[1]);
+		}
+		else if((strcmp(commands[5], args[1])) ==0)
 		{
 			printf("%s is shell builtin\n", args[1]);
 		}
