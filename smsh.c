@@ -93,20 +93,43 @@ char *parseCommand(char *cmdLine)
 	{
 		args[i] = strtok(NULL, " ");
 	}				
-	if(head == NULL)
+	if(cmd[0] == '!')								/* if cmd begins with "!" don't add to linked list */
 	{
-		head = (struct Node*)malloc(sizeof(struct Node));			/* memory allocation for head and current */
-		current = (struct Node*)malloc(sizeof(struct Node));
+		if(strcmp(cmd, "!!") ==0)							/* if cmd is "!!" return cmd and exucute last entered command in linked list */
+		{
+			/* execute last command in linked list */
+		}
+		else
+		{
+			char *ptr = cmd;
+			while(*ptr)
+			{
+				if(isdigit(*ptr))
+				{
+					int n = (int)strtol(ptr, &ptr, 10);
+					printf("n: %d\n", n);
+				}
+				else
+				{
+					ptr++;
+				}
+			}
+		}
+	}
+	else if(head == NULL)
+	{
+		head = malloc(sizeof(struct Node));					/* memory allocation for head and current */
 		head->comd = malloc(strlen(cmd+1));					/* assign cmd to head */
 		strcpy(head->comd, cmd);
-		head->next = current;							/* make the next node the current node */
+		current = head;
 	}
 	else
 	{
-		current->next = (struct Node*)malloc(sizeof(struct Node));		/* assign cmd to current */
-		current->next->comd = malloc(strlen(cmd+1));
-		strcpy(current->next->comd, cmd);
-		current = current->next;						/* make the next node the current node */
+		struct Node *temp = malloc(sizeof(struct Node));
+		temp->comd = malloc(strlen(cmd+1));
+		strcpy(temp->comd, cmd);
+		current->next = temp;
+		current = current->next;
 	}
 	return cmd;
 }
@@ -149,13 +172,14 @@ void executeInternalCommand(char *cmd)
 	}
 	else if((strcmp(commands[5], cmd)) ==0)						/* history */
 	{
-		printf("history implementation\n");
 		struct Node* temp;
 		temp = head;
+		int i = 0;
 		while(temp != NULL)							/* iterate over linked list and print */
 		{
-			printf("%s\n", temp->comd);
+			printf("%0d %s\n",i, temp->comd);
 			temp = temp->next;
+			i++;
 		}
 	}
 	else										/* type */
