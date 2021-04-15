@@ -88,16 +88,19 @@ char *readCommandLine()
 char *parseCommand(char *cmdLine)
 {
 	char *cmd = strtok(cmdLine, " ");
-	int i;	
+	int n;										/* nth command to execute */
+	int i;
+	struct Node *temp = head;
 	for(i = 1; i < 3; i++)
 	{
 		args[i] = strtok(NULL, " ");
 	}				
 	if(cmd[0] == '!')								/* if cmd begins with "!" don't add to linked list */
 	{
-		if(strcmp(cmd, "!!") ==0)							/* if cmd is "!!" return cmd and exucute last entered command in linked list */
+		if(strcmp(cmd, "!!") ==0)						/* if cmd is "!!" return cmd and exucute last entered command in linked list */
 		{
-			/* execute last command in linked list */
+			strcpy(cmd, current->comd);					/* execute last command in linked list */
+			return cmd;
 		}
 		else
 		{
@@ -106,12 +109,26 @@ char *parseCommand(char *cmdLine)
 			{
 				if(isdigit(*ptr))
 				{
-					int n = (int)strtol(ptr, &ptr, 10);
-					printf("n: %d\n", n);
+					n = (int)strtol(ptr, &ptr, 10);			/* get the value of n */
 				}
 				else
 				{
 					ptr++;
+				}
+			}
+			int k;
+			for(k = 1; k<=n; k++)
+			{
+				if(k == n)
+				{
+					strcpy(cmd, temp->comd);			/* execute the nth command in the linked list */
+					return cmd;
+				}	
+				temp = temp->next;
+				if(temp == NULL)					/* if n is greater than number of nodes in list then print error and break */
+				{
+					printf("An error has ocurred\n");
+					break;
 				}
 			}
 		}
@@ -174,7 +191,7 @@ void executeInternalCommand(char *cmd)
 	{
 		struct Node* temp;
 		temp = head;
-		int i = 0;
+		int i = 1;
 		while(temp != NULL)							/* iterate over linked list and print */
 		{
 			printf("%0d %s\n",i, temp->comd);
